@@ -82,37 +82,35 @@ export function RecipePagination({
   return (
     <nav
       aria-label="Recipe pages"
-      className="mt-10 flex flex-col items-center justify-between gap-4 rounded-3xl border border-stone-200 bg-white p-4 text-sm sm:flex-row"
+      className="mt-10 grid gap-4 rounded-3xl border border-stone-200 bg-white p-4 text-sm sm:grid-cols-3 sm:items-center"
     >
-      <div className="flex flex-col gap-3 text-stone-600 sm:flex-row sm:items-center">
-        <p>
-          Page {currentPage} of {totalPages}
-        </p>
-
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-stone-700" id="per-page-label">
-            Per page
-          </span>
-          <Select
-            value={String(perPage)}
-            onValueChange={handlePerPageChange}
+      <div className="flex items-center gap-2 text-stone-600">
+        <span className="font-medium text-stone-700" id="per-page-label">
+          Per page
+        </span>
+        <Select
+          value={String(perPage)}
+          onValueChange={handlePerPageChange}
+        >
+          <SelectTrigger
+            aria-labelledby="per-page-label"
+            className="w-24"
           >
-            <SelectTrigger
-              aria-labelledby="per-page-label"
-              className="w-24"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="6">6</SelectItem>
-              <SelectItem value="9">9</SelectItem>
-              <SelectItem value="15">15</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="6">6</SelectItem>
+            <SelectItem value="9">9</SelectItem>
+            <SelectItem value="15">15</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <div className="flex gap-3">
+      <p className="text-center text-stone-600">
+        Page {currentPage} of {totalPages}
+      </p>
+
+      <div className="flex gap-3 sm:justify-end">
         {hasPreviousPage ? (
           <Link
             href={getPageHref({

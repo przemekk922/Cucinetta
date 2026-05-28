@@ -47,6 +47,41 @@ function getRecipesPerPage(value: string | undefined) {
     : DEFAULT_RECIPES_PER_PAGE
 }
 
+function getListSearchParams({
+  search,
+  sortBy,
+  order,
+  currentPage,
+  perPage,
+}: {
+  search: string
+  sortBy?: RecipeSortField
+  order: SortOrder
+  currentPage: number
+  perPage: number
+}) {
+  const params = new URLSearchParams()
+
+  if (search) {
+    params.set("q", search)
+  }
+
+  if (sortBy) {
+    params.set("sortBy", sortBy)
+    params.set("order", order)
+  }
+
+  if (currentPage > 1) {
+    params.set("page", String(currentPage))
+  }
+
+  if (perPage !== DEFAULT_RECIPES_PER_PAGE) {
+    params.set("perPage", String(perPage))
+  }
+
+  return params
+}
+
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams
   const search = getSearchParam(params.q)?.trim() ?? ""
@@ -64,6 +99,14 @@ export default async function Home({ searchParams }: HomeProps) {
     skip,
   })
   const totalPages = Math.max(1, Math.ceil(total / perPage))
+  const listSearchParams = getListSearchParams({
+    search,
+    sortBy,
+    order,
+    currentPage,
+    perPage,
+  })
+  const listQueryString = listSearchParams.toString()
 
   return (
     <main className="min-h-screen">
@@ -109,9 +152,19 @@ export default async function Home({ searchParams }: HomeProps) {
         {recipes.length > 0 ? (
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {recipes.map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
-              ))}
+              {recipes.map((recipe) => {
+                const detailsHref = listQueryString
+                  ? `/recipes/${recipe.id}?${listQueryString}`
+                  : `/recipes/${recipe.id}`
+
+                return (
+                  <RecipeCard
+                    key={recipe.id}
+                    recipe={recipe}
+                    href={detailsHref}
+                  />
+                )
+              })}
             </div>
 
             <RecipePagination

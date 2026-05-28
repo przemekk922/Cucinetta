@@ -1,15 +1,17 @@
 import Image from "next/image"
+import Link from "next/link"
 import type { Recipe } from "@/lib/recipes"
 
 type RecipeCardProps = {
   recipe: Recipe
+  href: string
 }
 
-export function RecipeCard({ recipe }: RecipeCardProps) {
+export function RecipeCard({ recipe, href }: RecipeCardProps) {
   const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+    <article className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="relative aspect-[4/3] bg-stone-100">
         <Image
           src={recipe.image}
@@ -27,7 +29,9 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
         </div>
 
         <h2 className="mt-3 text-xl font-semibold tracking-tight text-stone-950">
-          {recipe.name}
+          <Link href={href} className="after:absolute after:inset-0">
+            {recipe.name}
+          </Link>
         </h2>
 
         <div className="mt-4 flex flex-wrap gap-3 text-sm text-stone-600">
