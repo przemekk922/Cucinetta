@@ -1,4 +1,14 @@
+"use client"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { RecipeSortField, SortOrder } from "@/lib/recipes"
 
 type RecipePaginationProps = {
@@ -55,6 +65,19 @@ export function RecipePagination({
   const nextPage = currentPage + 1
   const hasPreviousPage = currentPage > 1
   const hasNextPage = currentPage < totalPages
+  const router = useRouter()
+
+  function handlePerPageChange(value: string) {
+    router.push(
+      getPageHref({
+        page: 1,
+        search,
+        sortBy,
+        order,
+        perPage: Number(value),
+      })
+    )
+  }
 
   return (
     <nav
@@ -66,35 +89,27 @@ export function RecipePagination({
           Page {currentPage} of {totalPages}
         </p>
 
-        <form action="/" className="flex items-center gap-2">
-          {search ? <input type="hidden" name="q" value={search} /> : null}
-          {sortBy ? (
-            <>
-              <input type="hidden" name="sortBy" value={sortBy} />
-              <input type="hidden" name="order" value={order} />
-            </>
-          ) : null}
-
-          <label htmlFor="perPage" className="font-medium text-stone-700">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-stone-700" id="per-page-label">
             Per page
-          </label>
-          <select
-            id="perPage"
-            name="perPage"
-            defaultValue={perPage}
-            className="rounded-full border border-stone-300 px-3 py-2 text-stone-950 outline-none transition focus:border-orange-600"
+          </span>
+          <Select
+            value={String(perPage)}
+            onValueChange={handlePerPageChange}
           >
-            <option value="6">6</option>
-            <option value="9">9</option>
-            <option value="15">15</option>
-          </select>
-          <button
-            type="submit"
-            className="rounded-full border border-stone-300 px-3 py-2 font-medium text-stone-700 transition hover:border-stone-950 hover:text-stone-950"
-          >
-            Update
-          </button>
-        </form>
+            <SelectTrigger
+              aria-labelledby="per-page-label"
+              className="w-24"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="6">6</SelectItem>
+              <SelectItem value="9">9</SelectItem>
+              <SelectItem value="15">15</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="flex gap-3">

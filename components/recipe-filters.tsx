@@ -1,4 +1,13 @@
+"use client"
+
 import Link from "next/link"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { RecipeSortField, SortOrder } from "@/lib/recipes"
 
 type RecipeFiltersProps = {
@@ -20,7 +29,9 @@ export function RecipeFilters({
   sortBy,
   order,
 }: RecipeFiltersProps) {
-  const hasActiveFilters = Boolean(search || sortBy)
+  const clearLinkClassName = search
+    ? "pb-2 text-md font-medium text-stone-600 transition hover:text-stone-950"
+    : "pointer-events-none invisible pb-2 text-md font-medium text-stone-600"
 
   return (
     <form
@@ -40,30 +51,38 @@ export function RecipeFilters({
 
       <label className="grid gap-2 text-sm font-medium text-stone-700">
         Sort by
-        <select
+        <Select
           name="sortBy"
-          defaultValue={sortBy ?? ""}
-          className="h-11 rounded-full border border-stone-300 px-4 text-base font-normal text-stone-950 outline-none transition focus:border-orange-600"
+          defaultValue={sortBy ?? "default"}
         >
-          <option value="">Default</option>
-          {sortOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger>
+            <SelectValue placeholder="Default" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="default">Default</SelectItem>
+            {sortOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </label>
 
       <label className="grid gap-2 text-sm font-medium text-stone-700">
         Order
-        <select
+        <Select
           name="order"
           defaultValue={order}
-          className="h-11 rounded-full border border-stone-300 px-4 text-base font-normal text-stone-950 outline-none transition focus:border-orange-600"
         >
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="asc">Ascending</SelectItem>
+            <SelectItem value="desc">Descending</SelectItem>
+          </SelectContent>
+        </Select>
       </label>
 
       <div className="flex items-end gap-3">
@@ -73,14 +92,9 @@ export function RecipeFilters({
         >
           Apply
         </button>
-        {hasActiveFilters ? (
-          <Link
-            href="/"
-            className="pb-2 text-md font-medium text-stone-600 transition hover:text-stone-950"
-          >
-            Clear
-          </Link>
-        ) : null}
+        <Link href="/" className={clearLinkClassName}>
+          Clear
+        </Link>
       </div>
     </form>
   )
