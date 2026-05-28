@@ -1,10 +1,9 @@
-import Image from "next/image";
-import Link from "next/link";
-import { getRecipes } from "@/lib/recipes";
+import Link from "next/link"
+import { RecipeCard } from "@/components/recipe-card"
+import { getRecipes } from "@/lib/recipes"
 
 export default async function Home() {
-  const { recipes } = await getRecipes({ limit: 1 });
-  const featuredRecipe = recipes[0];
+  const { recipes } = await getRecipes({ limit: 6 })
 
   return (
     <main className="min-h-screen">
@@ -28,33 +27,25 @@ export default async function Home() {
         </p>
       </section>
 
-      {featuredRecipe ? (
-        <section>
-          <article>
-            <Image
-              src={featuredRecipe.image}
-              alt={featuredRecipe.name}
-              width={320}
-              height={240}
-              priority
-            />
-
-            <h2>{featuredRecipe.name}</h2>
-            <p>
-              {featuredRecipe.cuisine} · {featuredRecipe.difficulty} ·{" "}
-              {featuredRecipe.prepTimeMinutes + featuredRecipe.cookTimeMinutes}{" "}
-              min
+      <section className="mx-auto max-w-6xl px-6 pb-16">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-700">
+              Recipes
             </p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+              Popular picks
+            </h2>
+          </div>
+          <p className="text-sm text-stone-600">{recipes.length} recipes</p>
+        </div>
 
-            <h3>Ingredients</h3>
-            <ul>
-              {featuredRecipe.ingredients.slice(0, 6).map((ingredient) => (
-                <li key={ingredient}>{ingredient}</li>
-              ))}
-            </ul>
-          </article>
-        </section>
-      ) : null}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {recipes.map((recipe) => (
+            <RecipeCard key={recipe.id} recipe={recipe} />
+          ))}
+        </div>
+      </section>
     </main>
-  );
+  )
 }
