@@ -1,6 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
+import { getRecipes } from "@/lib/recipes";
 
-export default function Home() {
+export default async function Home() {
+  const { recipes } = await getRecipes({ limit: 1 });
+  const featuredRecipe = recipes[0];
+
   return (
     <main className="min-h-screen">
       <header className="border-b border-stone-200 bg-white/80 backdrop-blur">
@@ -22,6 +27,34 @@ export default function Home() {
           Cucinetta is a small recipe browser for simple home cooking ideas.
         </p>
       </section>
+
+      {featuredRecipe ? (
+        <section>
+          <article>
+            <Image
+              src={featuredRecipe.image}
+              alt={featuredRecipe.name}
+              width={320}
+              height={240}
+              priority
+            />
+
+            <h2>{featuredRecipe.name}</h2>
+            <p>
+              {featuredRecipe.cuisine} · {featuredRecipe.difficulty} ·{" "}
+              {featuredRecipe.prepTimeMinutes + featuredRecipe.cookTimeMinutes}{" "}
+              min
+            </p>
+
+            <h3>Ingredients</h3>
+            <ul>
+              {featuredRecipe.ingredients.slice(0, 6).map((ingredient) => (
+                <li key={ingredient}>{ingredient}</li>
+              ))}
+            </ul>
+          </article>
+        </section>
+      ) : null}
     </main>
   );
 }
