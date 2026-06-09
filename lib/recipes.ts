@@ -1,4 +1,7 @@
-const RECIPES_API_URL = "https://dummyjson.com/recipes";
+import { cache } from "react"
+
+const RECIPES_API_URL = "https://dummyjson.com/recipes"
+export const RECIPES_REVALIDATE_SECONDS = 3600
 
 export type Recipe = {
   id: number;
@@ -43,15 +46,17 @@ export type GetRecipesOptions = {
   order?: SortOrder;
 };
 
-async function fetchFromRecipesApi<ResponseData>(url: URL) {
-  const response = await fetch(url);
+const fetchFromRecipesApi = cache(async <ResponseData>(url: string) => {
+  const response = await fetch(url, {
+    next: { revalidate: RECIPES_REVALIDATE_SECONDS },
+  })
 
   if (!response.ok) {
-    throw new Error(`DummyJSON request failed with status ${response.status}`);
+    throw new Error(`DummyJSON request failed with status ${response.status}`)
   }
 
-  return response.json() as Promise<ResponseData>;
-}
+  return response.json() as Promise<ResponseData>
+})
 
 function appendNumberParam(params: URLSearchParams, name: string, value?: number) {
   if (typeof value === "number") {
@@ -85,11 +90,11 @@ export function getRecipesUrl({
 }
 
 export async function getRecipes(options: GetRecipesOptions = {}) {
-  return fetchFromRecipesApi<RecipesResponse>(getRecipesUrl(options));
+  return fetchFromRecipesApi<RecipesResponse>(getRecipesUrl(options).toString())
 }
 
 export async function getRecipeById(recipeId: number) {
-  const url = new URL(`${RECIPES_API_URL}/${recipeId}`);
+  const url = new URL(`${RECIPES_API_URL}/${recipeId}`)
 
-  return fetchFromRecipesApi<Recipe>(url);
+  return fetchFromRecipesApi<Recipe>(url.toString())
 }
