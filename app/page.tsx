@@ -1,94 +1,22 @@
-import Link from "next/link"
 import { RecipeFilters } from "@/components/recipe-filters"
 import { RecipePagination } from "@/components/recipe-pagination"
 import { RecipeCard } from "@/components/recipe-card"
-import { getRecipes, type RecipeSortField, type SortOrder } from "@/lib/recipes"
+import { SiteHeader } from "@/components/site-header"
+import {
+  getRecipeDetailsHref,
+  parseRecipeListParams,
+  type RawSearchParams,
+} from "@/lib/recipe-list-params"
+import { getRecipes } from "@/lib/recipes"
 
 type HomeProps = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}
-
-const recipeSortFields: RecipeSortField[] = [
-  "name",
-  "rating",
-  "prepTimeMinutes",
-  "cookTimeMinutes",
-  "caloriesPerServing",
-]
-
-const DEFAULT_RECIPES_PER_PAGE = 6
-const recipesPerPageOptions = [6, 9, 15]
-
-function getSearchParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value
-}
-
-function getSortBy(value: string | undefined) {
-  return recipeSortFields.includes(value as RecipeSortField)
-    ? (value as RecipeSortField)
-    : undefined
-}
-
-function getOrder(value: string | undefined): SortOrder {
-  return value === "desc" ? "desc" : "asc"
-}
-
-function getPage(value: string | undefined) {
-  const page = Number(value)
-
-  return Number.isInteger(page) && page > 0 ? page : 1
-}
-
-function getRecipesPerPage(value: string | undefined) {
-  const perPage = Number(value)
-
-  return recipesPerPageOptions.includes(perPage)
-    ? perPage
-    : DEFAULT_RECIPES_PER_PAGE
-}
-
-function getListSearchParams({
-  search,
-  sortBy,
-  order,
-  currentPage,
-  perPage,
-}: {
-  search: string
-  sortBy?: RecipeSortField
-  order: SortOrder
-  currentPage: number
-  perPage: number
-}) {
-  const params = new URLSearchParams()
-
-  if (search) {
-    params.set("q", search)
-  }
-
-  if (sortBy) {
-    params.set("sortBy", sortBy)
-    params.set("order", order)
-  }
-
-  if (currentPage > 1) {
-    params.set("page", String(currentPage))
-  }
-
-  if (perPage !== DEFAULT_RECIPES_PER_PAGE) {
-    params.set("perPage", String(perPage))
-  }
-
-  return params
+  searchParams: Promise<RawSearchParams>
 }
 
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams
-  const search = getSearchParam(params.q)?.trim() ?? ""
-  const sortBy = getSortBy(getSearchParam(params.sortBy))
-  const order = getOrder(getSearchParam(params.order))
-  const currentPage = getPage(getSearchParam(params.page))
-  const perPage = getRecipesPerPage(getSearchParam(params.perPage))
+  const listParams = parseRecipeListParams(params)
+  const { search, sortBy, order, currentPage, perPage } = listParams
   const skip = (currentPage - 1) * perPage
   const resultsHeading = search ? "Search results" : "Recipes"
   const { recipes, total } = await getRecipes({
@@ -99,24 +27,10 @@ export default async function Home({ searchParams }: HomeProps) {
     skip,
   })
   const totalPages = Math.max(1, Math.ceil(total / perPage))
-  const listSearchParams = getListSearchParams({
-    search,
-    sortBy,
-    order,
-    currentPage,
-    perPage,
-  })
-  const listQueryString = listSearchParams.toString()
 
   return (
     <main className="min-h-screen">
-      <header className="border-b border-stone-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center px-6 py-5">
-          <Link href="/" className="text-xl font-semibold tracking-tight">
-            Cucinetta
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-orange-700">
@@ -153,9 +67,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {recipes.map((recipe) => {
-                const detailsHref = listQueryString
-                  ? `/recipes/${recipe.id}?${listQueryString}`
-                  : `/recipes/${recipe.id}`
+                const detailsHref = getRecipeDetailsHref(recipe.id, listParams)
 
                 return (
                   <RecipeCard

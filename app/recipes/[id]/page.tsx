@@ -2,50 +2,20 @@ import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { SiteHeader } from "@/components/site-header"
+import {
+  getRecipeListHref,
+  parseRecipeListParams,
+  type RawSearchParams,
+} from "@/lib/recipe-list-params"
+import { getRecipeTotalTime } from "@/lib/recipe-format"
 import { getRecipeById } from "@/lib/recipes"
 
 type RecipePageProps = {
   params: Promise<{
     id: string
   }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}
-
-function getSearchParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value
-}
-
-function getBackHref(params: Record<string, string | string[] | undefined>) {
-  const listParams = new URLSearchParams()
-  const search = getSearchParam(params.q)
-  const sortBy = getSearchParam(params.sortBy)
-  const order = getSearchParam(params.order)
-  const page = getSearchParam(params.page)
-  const perPage = getSearchParam(params.perPage)
-
-  if (search) {
-    listParams.set("q", search)
-  }
-
-  if (sortBy) {
-    listParams.set("sortBy", sortBy)
-  }
-
-  if (order) {
-    listParams.set("order", order)
-  }
-
-  if (page) {
-    listParams.set("page", page)
-  }
-
-  if (perPage) {
-    listParams.set("perPage", perPage)
-  }
-
-  const queryString = listParams.toString()
-
-  return queryString ? `/?${queryString}` : "/"
+  searchParams: Promise<RawSearchParams>
 }
 
 async function getRecipe(recipeId: string) {
@@ -81,24 +51,19 @@ export default async function RecipePage({
   const { id } = await params
   const listParams = await searchParams
   const recipe = await getRecipe(id)
-  const backHref = getBackHref(listParams)
-  const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes
+  const backHref = getRecipeListHref(parseRecipeListParams(listParams))
+  const totalTime = getRecipeTotalTime(recipe)
 
   return (
     <main className="min-h-screen">
-      <header className="border-b border-stone-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-          <Link href="/" className="text-xl font-semibold tracking-tight">
-            Cucinetta
-          </Link>
-          <Link
-            href={backHref}
-            className="text-sm font-medium text-stone-600 transition hover:text-stone-950"
-          >
-            Back to recipes
-          </Link>
-        </div>
-      </header>
+      <SiteHeader>
+        <Link
+          href={backHref}
+          className="text-sm font-medium text-stone-600 transition hover:text-stone-950"
+        >
+          Back to recipes
+        </Link>
+      </SiteHeader>
 
       <article className="mx-auto max-w-6xl px-6 py-12">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">

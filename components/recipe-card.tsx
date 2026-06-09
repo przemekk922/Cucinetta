@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import { getRecipeTotalTime } from "@/lib/recipe-format"
 import type { Recipe } from "@/lib/recipes"
 
 type RecipeCardProps = {
@@ -8,7 +9,7 @@ type RecipeCardProps = {
 }
 
 export function RecipeCard({ recipe, href }: RecipeCardProps) {
-  const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes
+  const totalTime = getRecipeTotalTime(recipe)
 
   return (
     <article className="relative overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">

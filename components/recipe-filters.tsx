@@ -8,21 +8,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { RecipeSortField, SortOrder } from "@/lib/recipes"
+import {
+  type RecipeListParams,
+  recipeSortOptions,
+} from "@/lib/recipe-list-params"
 
-type RecipeFiltersProps = {
-  search: string
-  sortBy?: RecipeSortField
-  order: SortOrder
-}
-
-const sortOptions: Array<{ label: string; value: RecipeSortField }> = [
-  { label: "Name", value: "name" },
-  { label: "Rating", value: "rating" },
-  { label: "Prep time", value: "prepTimeMinutes" },
-  { label: "Cook time", value: "cookTimeMinutes" },
-  { label: "Calories", value: "caloriesPerServing" },
-]
+type RecipeFiltersProps = Pick<RecipeListParams, "search" | "sortBy" | "order">
 
 export function RecipeFilters({
   search,
@@ -60,7 +51,7 @@ export function RecipeFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="default">Default</SelectItem>
-            {sortOptions.map((option) => (
+            {recipeSortOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
               </SelectItem>

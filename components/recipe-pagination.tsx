@@ -9,48 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { RecipeSortField, SortOrder } from "@/lib/recipes"
+import {
+  getRecipeListHref,
+  type RecipeListParams,
+  recipesPerPageOptions,
+} from "@/lib/recipe-list-params"
 
-type RecipePaginationProps = {
-  currentPage: number
+type RecipePaginationProps = Pick<
+  RecipeListParams,
+  "currentPage" | "search" | "sortBy" | "order" | "perPage"
+> & {
   totalPages: number
-  search: string
-  sortBy?: RecipeSortField
-  order: SortOrder
-  perPage: number
-}
-
-function getPageHref({
-  page,
-  search,
-  sortBy,
-  order,
-  perPage,
-}: Omit<RecipePaginationProps, "currentPage" | "totalPages"> & {
-  page: number
-}) {
-  const params = new URLSearchParams()
-
-  if (search) {
-    params.set("q", search)
-  }
-
-  if (sortBy) {
-    params.set("sortBy", sortBy)
-    params.set("order", order)
-  }
-
-  if (page > 1) {
-    params.set("page", String(page))
-  }
-
-  if (perPage !== 6) {
-    params.set("perPage", String(perPage))
-  }
-
-  const queryString = params.toString()
-
-  return queryString ? `/?${queryString}` : "/"
 }
 
 export function RecipePagination({
@@ -69,8 +38,8 @@ export function RecipePagination({
 
   function handlePerPageChange(value: string) {
     router.push(
-      getPageHref({
-        page: 1,
+      getRecipeListHref({
+        currentPage: 1,
         search,
         sortBy,
         order,
@@ -99,9 +68,11 @@ export function RecipePagination({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="6">6</SelectItem>
-            <SelectItem value="9">9</SelectItem>
-            <SelectItem value="15">15</SelectItem>
+            {recipesPerPageOptions.map((option) => (
+              <SelectItem key={option} value={String(option)}>
+                {option}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -113,8 +84,8 @@ export function RecipePagination({
       <div className="flex gap-3 sm:justify-end">
         {hasPreviousPage ? (
           <Link
-            href={getPageHref({
-              page: previousPage,
+            href={getRecipeListHref({
+              currentPage: previousPage,
               search,
               sortBy,
               order,
@@ -132,8 +103,8 @@ export function RecipePagination({
 
         {hasNextPage ? (
           <Link
-            href={getPageHref({
-              page: nextPage,
+            href={getRecipeListHref({
+              currentPage: nextPage,
               search,
               sortBy,
               order,
